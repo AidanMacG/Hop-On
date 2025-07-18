@@ -25,14 +25,25 @@ export default function HostScreen() {
 
         console.log('Server generated code:', code);
 
+        console.log('Getting user ID...')
+
+        const { data: userId, error: userError } = await supabase
+          .rpc('generate_user_id');
+
+        if (userError) {
+          console.error('Error getting user ID:', userError);
+          throw userError;
+        }
+
+        console.log('User ID: ', userId);
+
         // Step 2: Create the room with that server-generated code
         const { data: roomData, error: roomError } = await supabase
           .from('rooms')
           .insert([
             {
               code: code,
-              host_id: 'your-user-id',
-              status: 'waiting',
+              host_id: userId, // change to generate_user_id
               created_at: new Date().toISOString(),
             }
           ])
@@ -82,9 +93,6 @@ export default function HostScreen() {
       <View style={styles.codeContainer}>
         <Text style={styles.codeLabel}>Room Code:</Text>
         <Text style={styles.code}>{roomCode}</Text>
-        <Text style={styles.instruction}>
-          Code generated server-side by Supabase
-        </Text>
       </View>
 
       <View style={styles.waitingContainer}>

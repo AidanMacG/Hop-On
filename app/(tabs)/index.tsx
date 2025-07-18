@@ -1,7 +1,7 @@
 import { useFonts } from 'expo-font';
 import { router } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { Dimensions, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React from 'react';
+import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -9,28 +9,6 @@ const buttonSpacing = 200; // space between buttons
 
 export default function HomeScreen() {
 
-  const [lobbyCode, setLobbyCode] = useState('');
-
-  useEffect(() => {
-    fetchLobbyCode().then(setLobbyCode).catch((err) => {
-      console.error(err);
-      // optionally show fallback UI or error
-    });
-  }, []);
-
-  async function fetchLobbyCode() {
-    const res = await fetch('https://<your-project-id>.functions.supabase.co/create-lobby', {
-      method: 'POST',
-    });
-
-    const data = await res.json();
-
-    if (res.ok && data.code) {
-      return data.code; // Use this in your UI
-    } else {
-      throw new Error(data.error || 'Failed to create lobby');
-    }
-  }
 
   const [fontsLoaded] = useFonts({
     'Rifton': require('../../assets/fonts/Rifton Norm.otf'),
@@ -44,12 +22,6 @@ export default function HomeScreen() {
     
       
     <View style={styles.container}>
-      <Text style={styles.label}>Your Lobby Code</Text>
-      <TextInput
-        value={`https://hopon.app/join/${lobbyCode}`}
-        editable={false}
-        style={styles.textBox}
-      />
       <View style={styles.buttonRow}>
         <TouchableOpacity style={styles.button} onPress={() => router.push('./host')}>
           <Text style={styles.buttonText}>Create a room</Text>
