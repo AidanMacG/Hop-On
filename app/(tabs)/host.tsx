@@ -9,46 +9,25 @@ export default function HostScreen() {
 
   useEffect(() => {
     const createRoom = async () => {
-      console.log('Getting server-generated code...');
       setLoading(true);
       setError('');
       
       try {
-        // Step 1: Get unique code from your server function
-        const { data: code, error: codeError } = await supabase
-          .rpc('generate_room_code'); // This matches your function name
+        
+        console.log('Creating user...')
 
-        if (codeError) {
-          console.error('Error getting code:', codeError);
-          throw codeError;
-        }
-
-        console.log('Server generated code:', code);
-
-        console.log('Getting user ID...')
-
-        const { data: userId, error: userError } = await supabase
-          .rpc('generate_user_id');
+        const { data: userData, error: userError } = await supabase
+          .rpc('create_user');
 
         if (userError) {
-          console.error('Error getting user ID:', userError);
+          console.error('Error creating user:', userError);
           throw userError;
         }
 
-        console.log('User ID: ', userId);
+        console.log('User created successfully:', userData);
 
-        // Step 2: Create the room with that server-generated code
         const { data: roomData, error: roomError } = await supabase
-          .from('rooms')
-          .insert([
-            {
-              code: code,
-              host_id: userId, // change to generate_user_id
-              created_at: new Date().toISOString(),
-            }
-          ])
-          .select()
-          .single();
+          .rpc('create_room', {"host_id": userData});
 
         if (roomError) {
           console.error('Error creating room:', roomError);
@@ -56,11 +35,11 @@ export default function HostScreen() {
         }
 
         console.log('Room created successfully:', roomData);
-        setRoomCode(code);
+        setRoomCode(roomData);
 
       } catch (error) {
         console.error('Error:', error);
-        setError('Failed to create room on server');
+        setError('Failed to host.');
       } finally {
         setLoading(false);
       }
